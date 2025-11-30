@@ -4,6 +4,7 @@ import { useXR } from '@react-three/xr'
 import { Float } from '@react-three/drei'
 import NameCard from '../components/NameCard'
 import InfoTile from '../components/InfoTile'
+import BeeBot from '../components/BeeBot'
 import * as THREE from 'three'
 
 /**
@@ -24,9 +25,32 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced }) => {
   const groupRef = useRef<THREE.Group>(null)
   const [isPlaced, setIsPlaced] = useState(false)
   const [hoveredTile, setHoveredTile] = useState<string | null>(null)
+  const [selectedSection, setSelectedSection] = useState<string | null>(null)
+  const [beeTargetSection, setBeeTargetSection] = useState<string | null>(null)
   
   // Get XR state
   const xrState = useXR()
+
+  // Handle section selection
+  const handleSectionSelect = (section: string) => {
+    setSelectedSection(section)
+    setBeeTargetSection(section)
+    setHoveredTile(section)
+    
+    // Reset bee target after animation
+    setTimeout(() => {
+      setBeeTargetSection(null)
+    }, 2000)
+  }
+
+  // Handle bee bot tap
+  const handleBeeTap = () => {
+    if (selectedSection) {
+      // If a section is selected, deselect it
+      setSelectedSection(null)
+      setHoveredTile(null)
+    }
+  }
 
   // Handle tap/click to place models - Mobile optimized
   const handlePlace = (event?: any) => {
@@ -94,12 +118,33 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced }) => {
 
       {/* Main Portfolio Group */}
       <group ref={groupRef} position={initialPosition}>
-        {/* Name Card - Main Panel */}
+        {/* Name Card - Main Hub Panel */}
         <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
           <NameCard position={[0, 0.5, 0]} />
         </Float>
 
-        {/* Info Tiles - Arranged around the name card */}
+        {/* About Me Section */}
+        <Float speed={1.8} rotationIntensity={0.15} floatIntensity={0.25}>
+          <InfoTile
+            position={[0, 0.8, 0]}
+            label="About"
+            details={[
+              'Software Engineer',
+              'Full-Stack Developer',
+              'AI Enthusiast',
+              'Web3 Builder'
+            ]}
+            color="#10b981"
+            isHovered={hoveredTile === 'about' || selectedSection === 'about'}
+            onHover={(hovered) => {
+              if (hovered) setHoveredTile('about')
+              else if (selectedSection !== 'about') setHoveredTile(null)
+            }}
+            onClick={() => handleSectionSelect('about')}
+          />
+        </Float>
+
+        {/* Skills Section */}
         <Float speed={2} rotationIntensity={0.15} floatIntensity={0.25}>
           <InfoTile
             position={[-0.8, 0, 0]}
@@ -113,12 +158,16 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced }) => {
               'AI Agents'
             ]}
             color="#6366f1"
-            isHovered={hoveredTile === 'skills'}
-            onHover={(hovered) => setHoveredTile(hovered ? 'skills' : null)}
-            onClick={handlePlace}
+            isHovered={hoveredTile === 'skills' || selectedSection === 'skills'}
+            onHover={(hovered) => {
+              if (hovered) setHoveredTile('skills')
+              else if (selectedSection !== 'skills') setHoveredTile(null)
+            }}
+            onClick={() => handleSectionSelect('skills')}
           />
         </Float>
 
+        {/* Projects Section */}
         <Float speed={2.2} rotationIntensity={0.15} floatIntensity={0.25}>
           <InfoTile
             position={[0.8, 0, 0]}
@@ -126,32 +175,52 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced }) => {
             details={[
               'Full-Stack Applications',
               'AI-Powered Solutions',
-              'Web3 DApps'
+              'Web3 DApps',
+              'AR/VR Experiences'
             ]}
             color="#8b5cf6"
-            isHovered={hoveredTile === 'projects'}
-            onHover={(hovered) => setHoveredTile(hovered ? 'projects' : null)}
-            onClick={handlePlace}
+            isHovered={hoveredTile === 'projects' || selectedSection === 'projects'}
+            onHover={(hovered) => {
+              if (hovered) setHoveredTile('projects')
+              else if (selectedSection !== 'projects') setHoveredTile(null)
+            }}
+            onClick={() => handleSectionSelect('projects')}
           />
         </Float>
 
+        {/* Contact Section */}
         <Float speed={1.8} rotationIntensity={0.15} floatIntensity={0.25}>
           <InfoTile
             position={[0, -0.6, 0]}
             label="Contact"
             details={[
               'Email: tharun@example.com',
-              'Portfolio: motipallitharun.com'
+              'Portfolio: motipallitharun.com',
+              'LinkedIn: /in/tharunmotipalli'
             ]}
             color="#ec4899"
-            isHovered={hoveredTile === 'contact'}
-            onHover={(hovered) => setHoveredTile(hovered ? 'contact' : null)}
+            isHovered={hoveredTile === 'contact' || selectedSection === 'contact'}
+            onHover={(hovered) => {
+              if (hovered) setHoveredTile('contact')
+              else if (selectedSection !== 'contact') setHoveredTile(null)
+            }}
             onClick={() => {
+              handleSectionSelect('contact')
               window.open('https://motipallitharun.com', '_blank')
             }}
             isContact={true}
           />
         </Float>
+
+        {/* Bee Bot Assistant - Hovering near the hub */}
+        {isPlaced && (
+          <BeeBot
+            position={[0.3, 0.3, 0]}
+            targetSection={beeTargetSection}
+            currentSection={selectedSection}
+            onTap={handleBeeTap}
+          />
+        )}
       </group>
 
       {/* Enhanced touch handler for mobile - larger and more responsive */}

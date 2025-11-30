@@ -87,7 +87,7 @@ const InfoTile: React.FC<InfoTileProps> = ({
           e.stopPropagation()
           handleClick()
         }}
-        scale={hovered ? 1.15 : 1}
+        scale={hovered ? 1.2 : 1}
       >
         <meshStandardMaterial
           color={hovered ? color : '#2a2a3e'}

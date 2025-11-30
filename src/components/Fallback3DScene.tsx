@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import NameCard from './NameCard'
 import InfoTile from './InfoTile'
+import BeeBot from './BeeBot'
 import { useState } from 'react'
 
 /**
@@ -18,6 +19,28 @@ import { useState } from 'react'
 
 const Fallback3DScene: React.FC = () => {
   const [hoveredTile, setHoveredTile] = useState<string | null>(null)
+  const [selectedSection, setSelectedSection] = useState<string | null>(null)
+  const [beeTargetSection, setBeeTargetSection] = useState<string | null>(null)
+
+  // Handle section selection
+  const handleSectionSelect = (section: string) => {
+    setSelectedSection(section)
+    setBeeTargetSection(section)
+    setHoveredTile(section)
+    
+    // Reset bee target after animation
+    setTimeout(() => {
+      setBeeTargetSection(null)
+    }, 2000)
+  }
+
+  // Handle bee bot tap
+  const handleBeeTap = () => {
+    if (selectedSection) {
+      setSelectedSection(null)
+      setHoveredTile(null)
+    }
+  }
 
   return (
     <div className="relative w-full h-full">
@@ -45,10 +68,29 @@ const Fallback3DScene: React.FC = () => {
 
         {/* Portfolio Content */}
         <group position={[0, 0, 0]}>
-          {/* Name Card */}
+          {/* Name Card - Main Hub */}
           <NameCard position={[0, 0.5, 0]} />
 
-          {/* Info Tiles */}
+          {/* About Me Section */}
+          <InfoTile
+            position={[0, 0.8, 0]}
+            label="About"
+            details={[
+              'Software Engineer',
+              'Full-Stack Developer',
+              'AI Enthusiast',
+              'Web3 Builder'
+            ]}
+            color="#10b981"
+            isHovered={hoveredTile === 'about' || selectedSection === 'about'}
+            onHover={(hovered) => {
+              if (hovered) setHoveredTile('about')
+              else if (selectedSection !== 'about') setHoveredTile(null)
+            }}
+            onClick={() => handleSectionSelect('about')}
+          />
+
+          {/* Skills Section */}
           <InfoTile
             position={[-0.8, 0, 0]}
             label="Skills"
@@ -61,37 +103,61 @@ const Fallback3DScene: React.FC = () => {
               'AI Agents'
             ]}
             color="#6366f1"
-            isHovered={hoveredTile === 'skills'}
-            onHover={(hovered) => setHoveredTile(hovered ? 'skills' : null)}
+            isHovered={hoveredTile === 'skills' || selectedSection === 'skills'}
+            onHover={(hovered) => {
+              if (hovered) setHoveredTile('skills')
+              else if (selectedSection !== 'skills') setHoveredTile(null)
+            }}
+            onClick={() => handleSectionSelect('skills')}
           />
 
+          {/* Projects Section */}
           <InfoTile
             position={[0.8, 0, 0]}
             label="Projects"
             details={[
               'Full-Stack Applications',
               'AI-Powered Solutions',
-              'Web3 DApps'
+              'Web3 DApps',
+              'AR/VR Experiences'
             ]}
             color="#8b5cf6"
-            isHovered={hoveredTile === 'projects'}
-            onHover={(hovered) => setHoveredTile(hovered ? 'projects' : null)}
+            isHovered={hoveredTile === 'projects' || selectedSection === 'projects'}
+            onHover={(hovered) => {
+              if (hovered) setHoveredTile('projects')
+              else if (selectedSection !== 'projects') setHoveredTile(null)
+            }}
+            onClick={() => handleSectionSelect('projects')}
           />
 
+          {/* Contact Section */}
           <InfoTile
             position={[0, -0.6, 0]}
             label="Contact"
             details={[
               'Email: tharun@example.com',
-              'Portfolio: motipallitharun.com'
+              'Portfolio: motipallitharun.com',
+              'LinkedIn: /in/tharunmotipalli'
             ]}
             color="#ec4899"
-            isHovered={hoveredTile === 'contact'}
-            onHover={(hovered) => setHoveredTile(hovered ? 'contact' : null)}
+            isHovered={hoveredTile === 'contact' || selectedSection === 'contact'}
+            onHover={(hovered) => {
+              if (hovered) setHoveredTile('contact')
+              else if (selectedSection !== 'contact') setHoveredTile(null)
+            }}
             onClick={() => {
+              handleSectionSelect('contact')
               window.open('https://motipallitharun.com', '_blank')
             }}
             isContact={true}
+          />
+
+          {/* Bee Bot Assistant */}
+          <BeeBot
+            position={[0.3, 0.3, 0]}
+            targetSection={beeTargetSection}
+            currentSection={selectedSection}
+            onTap={handleBeeTap}
           />
         </group>
       </Canvas>
