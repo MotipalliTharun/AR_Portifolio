@@ -16,16 +16,6 @@ const ARExperience: React.FC = () => {
   const [showInstructions, setShowInstructions] = useState(true)
   const [modelPlaced, setModelPlaced] = useState(false)
 
-  const handleSessionStart = () => {
-    setIsARSessionActive(true)
-    setShowInstructions(false)
-  }
-
-  const handleSessionEnd = () => {
-    setIsARSessionActive(false)
-    setModelPlaced(false)
-  }
-
   const handleModelPlaced = () => {
     setModelPlaced(true)
   }
@@ -42,9 +32,13 @@ const ARExperience: React.FC = () => {
         optionalFeatures: ['bounded-floor', 'hand-tracking'],
       })
       
-      handleSessionStart()
+      setIsARSessionActive(true)
+      setShowInstructions(false)
       
-      session.addEventListener('end', handleSessionEnd)
+      session.addEventListener('end', () => {
+        setIsARSessionActive(false)
+        setModelPlaced(false)
+      })
     } catch (error) {
       console.error('Failed to start AR session:', error)
       alert('Failed to start AR. Please ensure you are on a supported device with HTTPS.')
@@ -59,10 +53,7 @@ const ARExperience: React.FC = () => {
         gl={{ antialias: true, alpha: true }}
         dpr={[1, 2]}
       >
-        <XR
-          onSessionStart={handleSessionStart}
-          onSessionEnd={handleSessionEnd}
-        >
+        <XR>
           <ARScene onModelPlaced={handleModelPlaced} modelPlaced={modelPlaced} />
         </XR>
       </Canvas>

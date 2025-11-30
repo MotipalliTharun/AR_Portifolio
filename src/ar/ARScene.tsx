@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useXR, useXRController } from '@react-three/xr'
+import { useXR } from '@react-three/xr'
 import { Float } from '@react-three/drei'
 import NameCard from '../components/NameCard'
 import InfoTile from '../components/InfoTile'
@@ -26,9 +26,7 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced, modelPlaced }) => {
   const [isPlaced, setIsPlaced] = useState(false)
   const [hoveredTile, setHoveredTile] = useState<string | null>(null)
   
-  // Get XR controllers for interaction
-  const leftController = useXRController('left')
-  const rightController = useXRController('right')
+  // Get XR player for positioning
   const { player } = useXR()
 
   // Handle tap/click to place models
@@ -68,18 +66,8 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced, modelPlaced }) => {
     }
   }
 
-  // Listen for controller select events (trigger button)
-  useFrame(() => {
-    if (!isPlaced && (leftController || rightController)) {
-      const controller = leftController || rightController
-      if (controller) {
-        const gamepad = controller.inputSource?.gamepad
-        if (gamepad && gamepad.buttons[0]?.pressed) {
-          handlePlace()
-        }
-      }
-    }
-  })
+  // Note: Controller input handling removed as useXRController is not available
+  // Tap-to-place is handled via the invisible mesh click handler below
 
   // Floating animation for the entire group
   useFrame((state) => {
