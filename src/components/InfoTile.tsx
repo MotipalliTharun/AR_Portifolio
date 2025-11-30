@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Text } from '@react-three/drei'
+import { Text, RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
 
 /**
@@ -72,61 +72,86 @@ const InfoTile: React.FC<InfoTileProps> = ({
 
   return (
     <group ref={groupRef} position={position}>
-      {/* Main Tile */}
-      <mesh
+      {/* Main Tile - Rounded corners for modern look */}
+      <RoundedBox
         ref={meshRef}
+        args={[0.4, 0.4, 0.05]}
+        radius={0.01}
+        smoothness={4}
         castShadow
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
         onClick={handleClick}
-        scale={hovered ? 1.1 : 1}
+        onPointerDown={(e) => {
+          // Better mobile touch feedback
+          e.stopPropagation()
+          handleClick()
+        }}
+        scale={hovered ? 1.15 : 1}
       >
-        <boxGeometry args={[0.4, 0.4, 0.05]} />
         <meshStandardMaterial
           color={hovered ? color : '#2a2a3e'}
-          metalness={0.5}
-          roughness={0.3}
+          metalness={0.6}
+          roughness={0.2}
           emissive={color}
-          emissiveIntensity={hovered ? 0.3 : 0.1}
+          emissiveIntensity={hovered ? 0.4 : 0.15}
+        />
+      </RoundedBox>
+
+      {/* Icon/Indicator ring */}
+      <mesh position={[0, 0, 0.03]}>
+        <ringGeometry args={[0.22, 0.24, 32]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={hovered ? 0.6 : 0.3}
+          side={THREE.DoubleSide}
         />
       </mesh>
 
-      {/* Label Text */}
+      {/* Label Text - Better visibility on mobile */}
       <Text
-        position={[0, 0, 0.03]}
-        fontSize={0.08}
+        position={[0, 0, 0.04]}
+        fontSize={0.085}
         color="#ffffff"
         anchorX="center"
         anchorY="middle"
         maxWidth={0.35}
+        outlineWidth={0.005}
+        outlineColor="#000000"
       >
         {label}
       </Text>
 
-      {/* Details Panel (shown on hover) */}
+      {/* Details Panel (shown on hover/tap) - Mobile optimized */}
       {hovered && (
         <group position={[0, -0.5, 0]}>
-          <mesh>
-            <boxGeometry args={[0.5, details.length * 0.12 + 0.1, 0.05]} />
+          <RoundedBox
+            args={[0.55, details.length * 0.13 + 0.12, 0.05]}
+            radius={0.01}
+            smoothness={4}
+          >
             <meshStandardMaterial
               color="#1a1a2e"
-              metalness={0.3}
-              roughness={0.4}
+              metalness={0.4}
+              roughness={0.3}
               emissive={color}
-              emissiveIntensity={0.2}
+              emissiveIntensity={0.25}
               transparent
-              opacity={0.95}
+              opacity={0.97}
             />
-          </mesh>
+          </RoundedBox>
           {details.map((detail, index) => (
             <Text
               key={index}
-              position={[0, -index * 0.12 + (details.length - 1) * 0.06, 0.03]}
-              fontSize={0.05}
-              color="#cccccc"
+              position={[0, -index * 0.13 + (details.length - 1) * 0.065, 0.04]}
+              fontSize={0.055}
+              color="#e0e0e0"
               anchorX="center"
               anchorY="middle"
-              maxWidth={0.45}
+              maxWidth={0.48}
+              outlineWidth={0.003}
+              outlineColor="#000000"
             >
               {detail}
             </Text>

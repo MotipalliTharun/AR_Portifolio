@@ -28,20 +28,34 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced }) => {
   // Get XR state
   const xrState = useXR()
 
-  // Handle tap/click to place models
+  // Handle tap/click to place models - Mobile optimized
   const handlePlace = (event?: any) => {
     if (!isPlaced && groupRef.current) {
-      // Position the group 1.5 meters in front of the camera
-      // In AR, we'll place it at a fixed position relative to the origin
-      const distance = 1.5
+      // Get touch/click position for better mobile placement
+      let touchX = 0
+      let touchY = 0
       
-      // Use camera position if available in XR state, otherwise use fixed position
+      if (event) {
+        // Get touch position for mobile
+        if (event.touches && event.touches.length > 0) {
+          touchX = (event.touches[0].clientX / window.innerWidth) * 2 - 1
+          touchY = -(event.touches[0].clientY / window.innerHeight) * 2 + 1
+        } else if (event.clientX) {
+          touchX = (event.clientX / window.innerWidth) * 2 - 1
+          touchY = -(event.clientY / window.innerHeight) * 2 + 1
+        }
+      }
+      
+      // Position the group 1.2-1.8 meters in front (optimal for mobile viewing)
+      const distance = 1.5
+      const heightOffset = touchY * 0.3 // Adjust height based on tap position
+      const sideOffset = touchX * 0.3 // Adjust side position
+      
+      // In AR mode, place relative to origin with touch offset
       if (xrState.originReferenceSpace) {
-        // In AR mode, place relative to origin
-        groupRef.current.position.set(0, 0, -distance)
+        groupRef.current.position.set(sideOffset, heightOffset, -distance)
       } else {
-        // Fallback: place at fixed position
-        groupRef.current.position.set(0, 0, -distance)
+        groupRef.current.position.set(sideOffset, heightOffset, -distance)
       }
       
       setIsPlaced(true)
@@ -50,6 +64,7 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced }) => {
       // Stop event propagation
       if (event) {
         event.stopPropagation()
+        event.preventDefault()
       }
     }
   }
@@ -139,16 +154,29 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced }) => {
         </Float>
       </group>
 
-      {/* Click handler for mobile/web tap - invisible plane */}
+      {/* Enhanced touch handler for mobile - larger and more responsive */}
       <mesh
         position={[0, 0, -1]}
         onClick={handlePlace}
         onPointerDown={handlePlace}
         visible={false}
       >
-        <planeGeometry args={[20, 20]} />
+        <planeGeometry args={[30, 30]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
+
+      {/* Visual feedback for placement area (only before placement) */}
+      {!isPlaced && (
+        <mesh position={[0, 0, -1.5]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.3, 0.5, 32]} />
+          <meshBasicMaterial
+            color="#6366f1"
+            transparent
+            opacity={0.3}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
     </>
   )
 }

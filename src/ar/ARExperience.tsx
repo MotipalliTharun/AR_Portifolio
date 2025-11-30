@@ -50,40 +50,58 @@ const ARExperience: React.FC = () => {
 
   return (
     <div className="relative w-full h-full">
-      {/* AR Canvas */}
+      {/* AR Canvas - Optimized for mobile performance */}
       <Canvas
         camera={{ position: [0, 1.6, 0], fov: 50 }}
-        gl={{ antialias: true, alpha: true }}
-        dpr={[1, 2]}
+        gl={{ 
+          antialias: true, 
+          alpha: true,
+          powerPreference: "high-performance",
+          stencil: false,
+          depth: true
+        }}
+        dpr={[1, Math.min(window.devicePixelRatio, 2)]}
+        performance={{ min: 0.5 }}
       >
         <XR store={xrStore}>
           <ARScene onModelPlaced={handleModelPlaced} />
         </XR>
       </Canvas>
 
-      {/* AR Entry Button */}
+      {/* AR Entry Button - Mobile optimized */}
       {!isARSessionActive && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-10">
-          <div className="text-center px-4">
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-black/90 to-black/80 backdrop-blur-sm z-10">
+          <div className="text-center px-6 max-w-sm">
+            <div className="mb-6">
+              <div className="text-6xl mb-4">📱</div>
+              <h2 className="text-2xl font-bold text-white mb-2">AR Portfolio</h2>
+              <p className="text-gray-300 text-sm">Experience my work in Augmented Reality</p>
+            </div>
             <button
               onClick={handleEnterAR}
-              className="px-8 py-4 bg-gradient-to-r from-ar-primary to-ar-secondary text-white rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="w-full px-8 py-4 bg-gradient-to-r from-ar-primary via-ar-secondary to-ar-accent text-white rounded-xl font-bold text-lg shadow-2xl hover:shadow-ar-primary/50 transition-all duration-300 transform active:scale-95 touch-manipulation"
             >
-              Enter AR Experience
+              🚀 Enter AR Experience
             </button>
-            <p className="mt-4 text-gray-400 text-sm">
-              Point your device at a flat surface
+            <p className="mt-4 text-gray-400 text-xs">
+              📍 Point your device at a flat surface
+            </p>
+            <p className="mt-2 text-gray-500 text-xs">
+              Works best on iOS 15+ or Android with ARCore
             </p>
           </div>
         </div>
       )}
 
-      {/* Instructions Overlay */}
+      {/* Instructions Overlay - Mobile optimized */}
       {isARSessionActive && showInstructions && !modelPlaced && (
-        <div className="absolute bottom-20 left-0 right-0 flex justify-center z-20">
-          <div className="bg-black/70 backdrop-blur-md px-6 py-4 rounded-lg border border-ar-primary/50">
-            <p className="text-white text-center text-sm">
-              👆 Tap to place your portfolio in AR space
+        <div className="absolute bottom-24 left-0 right-0 flex justify-center z-20 px-4">
+          <div className="bg-black/80 backdrop-blur-md px-6 py-4 rounded-xl border-2 border-ar-primary/60 shadow-2xl max-w-sm">
+            <p className="text-white text-center text-base font-medium">
+              👆 Tap anywhere to place your portfolio
+            </p>
+            <p className="text-gray-400 text-center text-xs mt-2">
+              Move your device to explore in AR
             </p>
           </div>
         </div>
