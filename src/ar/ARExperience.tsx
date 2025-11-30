@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { XR } from '@react-three/xr'
+import { XR, createXRStore } from '@react-three/xr'
 import ARScene from './ARScene'
 
 /**
@@ -11,6 +11,9 @@ import ARScene from './ARScene'
  * - AR button for entering AR mode
  * - Overlay UI instructions
  */
+// Create XR store for managing XR state
+const xrStore = createXRStore()
+
 const ARExperience: React.FC = () => {
   const [isARSessionActive, setIsARSessionActive] = useState(false)
   const [showInstructions, setShowInstructions] = useState(true)
@@ -53,8 +56,8 @@ const ARExperience: React.FC = () => {
         gl={{ antialias: true, alpha: true }}
         dpr={[1, 2]}
       >
-        <XR>
-          <ARScene onModelPlaced={handleModelPlaced} modelPlaced={modelPlaced} />
+        <XR store={xrStore}>
+          <ARScene onModelPlaced={handleModelPlaced} />
         </XR>
       </Canvas>
 

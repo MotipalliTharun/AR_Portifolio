@@ -18,16 +18,15 @@ import * as THREE from 'three'
 
 interface ARSceneProps {
   onModelPlaced: () => void
-  modelPlaced: boolean
 }
 
-const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced, modelPlaced }) => {
+const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced }) => {
   const groupRef = useRef<THREE.Group>(null)
   const [isPlaced, setIsPlaced] = useState(false)
   const [hoveredTile, setHoveredTile] = useState<string | null>(null)
   
-  // Get XR player for positioning
-  const { player } = useXR()
+  // Get XR state
+  const xrState = useXR()
 
   // Handle tap/click to place models
   const handlePlace = (event?: any) => {
@@ -35,22 +34,11 @@ const ARScene: React.FC<ARSceneProps> = ({ onModelPlaced, modelPlaced }) => {
       // Position the group 1.5 meters in front of the camera
       // In AR, we'll place it at a fixed position relative to the origin
       const distance = 1.5
-      const height = 0 // Eye level
       
-      if (player) {
-        // Get forward direction from player
-        const forward = new THREE.Vector3(0, 0, -1)
-        forward.applyQuaternion(player.rotation)
-        
-        const position = new THREE.Vector3()
-        position.copy(player.position)
-        position.add(forward.multiplyScalar(distance))
-        position.y = player.position.y + height
-        
-        groupRef.current.position.copy(position)
-        
-        // Make it face the player
-        groupRef.current.lookAt(player.position)
+      // Use camera position if available in XR state, otherwise use fixed position
+      if (xrState.originReferenceSpace) {
+        // In AR mode, place relative to origin
+        groupRef.current.position.set(0, 0, -distance)
       } else {
         // Fallback: place at fixed position
         groupRef.current.position.set(0, 0, -distance)
