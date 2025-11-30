@@ -43,12 +43,13 @@ const Fallback3DScene: React.FC = () => {
   }
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}>
       {/* 3D Canvas */}
       <Canvas
         camera={{ position: [0, 1.5, 3], fov: 50 }}
         gl={{ antialias: true, alpha: true }}
-        dpr={[1, 2]}
+        dpr={[1, Math.min(window.devicePixelRatio || 1, 2)]}
+        style={{ width: '100%', height: '100%' }}
       >
         {/* Lighting */}
         <ambientLight intensity={0.6} />

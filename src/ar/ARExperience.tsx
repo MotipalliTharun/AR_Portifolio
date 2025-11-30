@@ -49,7 +49,7 @@ const ARExperience: React.FC = () => {
   }
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" style={{ width: '100vw', height: '100vh', position: 'fixed', top: 0, left: 0 }}>
       {/* AR Canvas - Optimized for mobile performance */}
       <Canvas
         camera={{ position: [0, 1.6, 0], fov: 50 }}
@@ -60,8 +60,9 @@ const ARExperience: React.FC = () => {
           stencil: false,
           depth: true
         }}
-        dpr={[1, Math.min(window.devicePixelRatio, 2)]}
+        dpr={[1, Math.min(window.devicePixelRatio || 1, 2)]}
         performance={{ min: 0.5 }}
+        style={{ width: '100%', height: '100%' }}
       >
         <XR store={xrStore}>
           <ARScene onModelPlaced={handleModelPlaced} />

@@ -16,18 +16,24 @@ function App() {
   useEffect(() => {
     // Check for WebXR AR support
     const checkARSupport = async () => {
-      if (navigator.xr) {
-        try {
-          const isSupported = await navigator.xr.isSessionSupported('immersive-ar')
-          setIsARSupported(isSupported)
-        } catch (error) {
-          console.log('WebXR AR not supported:', error)
+      try {
+        if (navigator.xr) {
+          try {
+            const isSupported = await navigator.xr.isSessionSupported('immersive-ar')
+            setIsARSupported(isSupported)
+          } catch (error) {
+            console.log('WebXR AR not supported:', error)
+            setIsARSupported(false)
+          }
+        } else {
           setIsARSupported(false)
         }
-      } else {
+      } catch (error) {
+        console.error('Error checking AR support:', error)
         setIsARSupported(false)
+      } finally {
+        setIsLoading(false)
       }
-      setIsLoading(false)
     }
 
     checkARSupport()
@@ -35,7 +41,7 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-black">
+      <div className="flex items-center justify-center w-full h-full bg-black" style={{ width: '100vw', height: '100vh' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ar-primary mx-auto mb-4"></div>
           <p className="text-gray-400">Checking AR support...</p>
@@ -44,8 +50,9 @@ function App() {
     )
   }
 
+  // Always show fallback for now to debug
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full" style={{ width: '100vw', height: '100vh' }}>
       {isARSupported ? (
         <ARExperience />
       ) : (
